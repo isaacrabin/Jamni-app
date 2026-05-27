@@ -2,16 +2,26 @@
   "name": "Jamni-app",
   "private": true,
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "dev": "turbo dev",
+    "dev:frontend": "cd apps/frontend && npm run dev",
+    "dev:backend": "cd apps/backend && npm run dev",
+    "build": "turbo build",
+    "build:frontend": "cd apps/frontend && npm run build",
+    "build:backend": "cd apps/backend && npm run build"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/helmet": "^0.0.48",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^25.9.1",
+    "jsonwebtoken": "^9.0.3",
+    "nodemon": "^3.1.14",
     "prettier": "^3.7.4",
+    "ts-node": "^10.9.2",
     "turbo": "^2.9.14",
-    "typescript": "5.9.2"
+    "typescript": "^5.9.2"
   },
   "engines": {
     "node": ">=18"
