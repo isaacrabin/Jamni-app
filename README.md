@@ -1,159 +1,315 @@
-# Turborepo starter
 
-This Turborepo starter is maintained by the Turborepo core team.
+```markdown
+# Jamni App
 
-## Using this example
+A modern monorepo application with Next.js frontend and Node.js backend.
 
-Run the following command:
+## Project Structure
 
-```sh
-npx create-turbo@latest
+```
+Jamni-app/
+├── apps/
+│   ├── frontend/         # Next.js frontend application
+│   └── backend/          # Node.js + Express backend API
+├── packages/
+│   ├── eslint-config/    # Shared ESLint configurations
+│   ├── typescript-config/ # Shared TypeScript configurations
+│   └── ui/               # Shared UI components
+├── infrastructure/       # Infrastructure as code
+├── scripts/              # Utility scripts
+└── turbo.json           # Turborepo configuration
 ```
 
-## What's inside?
+## Prerequisites
 
-This Turborepo includes the following packages/apps:
+- **Node.js** >= 18.0.0 (v20+ recommended)
+- **npm** >= 9.0.0 or **yarn** >= 1.22.0
+- **PostgreSQL** (if using database)
+- **Git**
 
-### Apps and Packages
+## Getting Started
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+### 1. Clone the Repository
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+git clone <your-repo-url>
+cd Jamni-app
 ```
 
-Without global `turbo`, use your package manager:
+### 2. Install Dependencies
 
-```sh
-cd my-turborepo
-npx turbo build
-npm dlx turbo build
-npm exec turbo build
+```bash
+npm install
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+### 3. Environment Setup
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+#### Backend Environment (.env)
 
-```sh
-turbo build --filter=docs
+Create `apps/backend/.env`:
+
+```env
+# Server Configuration
+PORT=8000
+NODE_ENV=development
+
+# Frontend URL (CORS)
+FRONTEND_URL=http://localhost:3000
+
+# Database (if using Prisma/PostgreSQL)
+DATABASE_URL="postgresql://user:password@localhost:5432/jamni_db"
+
+# JWT Secret (for authentication)
+JWT_SECRET=your-super-secret-jwt-key-change-this
 ```
 
-Without global `turbo`:
+#### Frontend Environment (.env.local)
 
-```sh
-npx turbo build --filter=docs
-npm exec turbo build --filter=docs
-npm exec turbo build --filter=docs
+Create `apps/frontend/.env.local`:
+
+```env
+# Backend API URL
+NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
-### Develop
+### 4. Database Setup (Optional)
 
-To develop all apps and packages, run the following command:
+If using Prisma with PostgreSQL:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+```bash
+cd apps/backend
 
-```sh
-cd my-turborepo
-turbo dev
+# Generate Prisma client
+npx prisma generate
+
+# Run migrations
+npx prisma migrate dev --name init
 ```
 
-Without global `turbo`, use your package manager:
+## Running the Application
 
-```sh
-cd my-turborepo
-npx turbo dev
-npm exec turbo dev
-npm exec turbo dev
+### Development Mode
+
+Run both frontend and backend simultaneously:
+
+```bash
+npm run dev
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+This will start:
+- **Frontend**: http://localhost:3000
+- **Backend**: http://localhost:8000
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+### Run Separately
 
-```sh
-turbo dev --filter=web
+#### Start only the backend:
+
+```bash
+npm run dev:backend
+# or
+cd apps/backend && npm run dev
 ```
 
-Without global `turbo`:
+#### Start only the frontend:
 
-```sh
-npx turbo dev --filter=web
-npm exec turbo dev --filter=web
-npm exec turbo dev --filter=web
+```bash
+npm run dev:frontend
+# or
+cd apps/frontend && npm run dev
 ```
 
-### Remote Caching
+### Production Build
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+Build both applications:
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
+```bash
+npm run build
 ```
 
-Without global `turbo`, use your package manager:
+Build individually:
 
-```sh
-cd my-turborepo
-npx turbo login
-npm exec turbo login
-npm exec turbo login
+```bash
+npm run build:backend
+npm run build:frontend
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+### Production Start
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
+```bash
+npm run start
 ```
 
-Without global `turbo`:
+## Testing the API
 
-```sh
-npx turbo link
-npm exec turbo link
-npm exec turbo link
+Once the backend is running, test the endpoints:
+
+```bash
+# Health check
+curl http://localhost:8000/api/health
+
+# Get users
+curl http://localhost:8000/api/users
+
+# Create user
+curl -X POST http://localhost:8000/api/users \
+  -H "Content-Type: application/json" \
+  -d '{"name":"John Doe","email":"john@example.com"}'
 ```
 
-## Useful Links
+## Available Scripts
 
-Learn more about the power of Turborepo:
+### Root Level
 
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start both frontend and backend |
+| `npm run dev:frontend` | Start only frontend |
+| `npm run dev:backend` | Start only backend |
+| `npm run build` | Build both applications |
+| `npm run build:frontend` | Build only frontend |
+| `npm run build:backend` | Build only backend |
+| `npm run start` | Start both in production |
+| `npm run lint` | Run linting across all apps |
+| `npm run clean` | Clean all build artifacts |
+
+### Backend Only (cd apps/backend)
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start with hot reload |
+| `npm run build` | Compile TypeScript |
+| `npm run start` | Run compiled backend |
+| `npm run clean` | Remove dist directory |
+
+### Frontend Only (cd apps/frontend)
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start Next.js dev server |
+| `npm run build` | Create production build |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint |
+
+## Technology Stack
+
+### Frontend
+- **Framework**: Next.js 14+ (App Router)
+- **Language**: TypeScript
+- **Styling**: CSS Modules
+- **UI Components**: Custom component library
+
+### Backend
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Language**: TypeScript
+- **Validation**: Zod
+- **Database**: PostgreSQL with Prisma ORM (optional)
+- **Security**: Helmet, CORS
+
+### Monorepo Tools
+- **Turborepo**: Build system
+- **npm workspaces**: Package management
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. Backend won't start - "Cannot find module"
+
+```bash
+cd apps/backend
+rm -rf node_modules package-lock.json
+npm install
+npm run dev
+```
+
+#### 2. Frontend can't connect to backend
+
+- Ensure backend is running on port 8000
+- Check `NEXT_PUBLIC_API_URL` in frontend `.env.local`
+- Verify CORS settings in backend `.env`
+
+#### 3. Turborepo errors
+
+Update `turbo.json` to use `tasks` instead of `pipeline`:
+
+```json
+{
+  "tasks": {
+    "dev": { "cache": false, "persistent": true },
+    "build": { "dependsOn": ["^build"], "outputs": ["dist/**", ".next/**"] }
+  }
+}
+```
+
+#### 4. Port already in use
+
+Change ports in respective `.env` files:
+
+```env
+# Backend .env
+PORT=8001
+
+# Frontend .env.local
+PORT=3001
+```
+
+## Development Workflow
+
+### Adding Dependencies
+
+```bash
+# Add to backend
+npm install <package> --workspace=@jamni/backend
+
+# Add to frontend
+npm install <package> --workspace=web
+```
+
+### Running Commands in Specific Workspaces
+
+```bash
+# Run dev in backend
+npm run dev --workspace=@jamni/backend
+
+# Run lint in frontend
+npm run lint --workspace=web
+```
+
+## Deployment
+
+### Backend Deployment
+
+```bash
+cd apps/backend
+npm run build
+npm run start
+```
+
+For production, consider using:
+- **Process Manager**: PM2
+- **Container**: Docker
+- **Platform**: Heroku, Railway, DigitalOcean, AWS
+
+### Frontend Deployment
+
+```bash
+cd apps/frontend
+npm run build
+npm run start
+```
+
+Or deploy to Vercel:
+
+```bash
+vercel --prod
+```
+
+## License
+
+[Your License Here]
+
+## Support
+
+For issues or questions, please open an issue in the repository.
+```
