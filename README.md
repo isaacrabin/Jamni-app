@@ -2,37 +2,16 @@
 ```markdown
 # Jamni App
 
-A modern monorepo application with Next.js frontend and Node.js backend.
+A Full Stack Application build on Next.js and Express
 
-## Project Structure
 
-```
-Jamni-app/
-├── apps/
-│   ├── frontend/         # Next.js frontend application
-│   └── backend/          # Node.js + Express backend API
-├── packages/
-│   ├── eslint-config/    # Shared ESLint configurations
-│   ├── typescript-config/ # Shared TypeScript configurations
-│   └── ui/               # Shared UI components
-├── infrastructure/       # Infrastructure as code
-├── scripts/              # Utility scripts
-└── turbo.json           # Turborepo configuration
-```
-
-## Prerequisites
-
-- **Node.js** >= 18.0.0 (v20+ recommended)
-- **npm** >= 9.0.0 or **yarn** >= 1.22.0
-- **PostgreSQL** (if using database)
-- **Git**
 
 ## Getting Started
 
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repo-url>
+git clone <https://github.com/isaacrabin/Jamni-app.git>
 cd Jamni-app
 ```
 
@@ -156,42 +135,6 @@ curl -X POST http://localhost:8000/api/users \
   -d '{"name":"John Doe","email":"john@example.com"}'
 ```
 
-## Available Scripts
-
-### Root Level
-
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start both frontend and backend |
-| `npm run dev:frontend` | Start only frontend |
-| `npm run dev:backend` | Start only backend |
-| `npm run build` | Build both applications |
-| `npm run build:frontend` | Build only frontend |
-| `npm run build:backend` | Build only backend |
-| `npm run start` | Start both in production |
-| `npm run lint` | Run linting across all apps |
-| `npm run clean` | Clean all build artifacts |
-
-### Backend Only (cd apps/backend)
-
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start with hot reload |
-| `npm run build` | Compile TypeScript |
-| `npm run start` | Run compiled backend |
-| `npm run clean` | Remove dist directory |
-
-### Frontend Only (cd apps/frontend)
-
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start Next.js dev server |
-| `npm run build` | Create production build |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-
-## Technology Stack
-
 ### Frontend
 - **Framework**: Next.js 14+ (App Router)
 - **Language**: TypeScript
@@ -276,40 +219,4 @@ npm run dev --workspace=@jamni/backend
 npm run lint --workspace=web
 ```
 
-## Deployment
-
-### Backend Deployment
-
-```bash
-cd apps/backend
-npm run build
-npm run start
-```
-
-For production, consider using:
-- **Process Manager**: PM2
-- **Container**: Docker
-- **Platform**: Heroku, Railway, DigitalOcean, AWS
-
-### Frontend Deployment
-
-```bash
-cd apps/frontend
-npm run build
-npm run start
-```
-
-Or deploy to Vercel:
-
-```bash
-vercel --prod
-```
-
-## License
-
-[Your License Here]
-
-## Support
-
-For issues or questions, please open an issue in the repository.
 ```
