@@ -1,21 +1,18 @@
-import express, { Express } from 'express';
 import dotenv from 'dotenv';
-import { setupApp } from './app';
-
 dotenv.config();
 
-const PORT = process.env.PORT || 8000;
+import { createApp } from './app';
 
-async function startServer() {
-  const app: Express = express();
-  
-  // Setup middleware and routes
-  await setupApp(app);
-  
+const PORT = process.env.PORT ?? 8000;
+
+function startServer() {
+  const app = createApp();
+
   app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📝 API docs available at http://localhost:${PORT}/api/health`);
+    console.log(`🚀 Server running on    http://localhost:${PORT}`);
+    console.log(`📖 Swagger UI at        http://localhost:${PORT}/api-docs`);
+    console.log(`📄 OpenAPI JSON at      http://localhost:${PORT}/api-docs.json`);
   });
 }
 
-startServer().catch(console.error);
+startServer();

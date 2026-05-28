@@ -1,53 +1,206 @@
-import { Router, Request, Response } from 'express';
-import { z } from 'zod';
+// apps/backend/api/routes/user.ts
+
+import { Router } from 'express';
+import { Type, Static } from '@sinclair/typebox';
+
+import { validate } from '../middleware/validate';
+import { registry } from '../registry';
+import * as UserController from '../controllers/user';
+
+// ─── Schemas ─────────────────────────────────────────
+
+export const UserSchema = Type.Object(
+  {
+    id: Type.Integer({ example: 1 }),
+    name: Type.String({ example: 'John Doe' }),
+    email: Type.String({ format: 'email', example: 'john@example.com' }),
+    createdAt: Type.String({ format: 'date-time' }),
+  },
+  { $id: 'User' }
+);
+
+export type User = Static<typeof UserSchema>;
+
+export const CreateUserSchema = Type.Object(
+  {
+    name: Type.String({
+      minLength: 2,
+      maxLength: 100,
+      example: 'John Doe',
+    }),
+    email: Type.String({ format: 'email', example: 'john@example.com' }),
+    age: Type.Optional(
+      Type.Integer({
+        minimum: 0,
+        maximum: 150,
+        example: 25,
+      })
+    ),
+  },
+  { $id: 'CreateUserDto' }
+);
+
+export type CreateUserDto = Static<typeof CreateUserSchema>;
+
+export const UpdateUserSchema = Type.Object(
+  {
+    name: Type.Optional(Type.String({ minLength: 2, maxLength: 100 })),
+    email: Type.Optional(Type.String({ format: 'email' })),
+    age: Type.Optional(Type.Integer({ minimum: 0, maximum: 150 })),
+  },
+  { $id: 'UpdateUserDto' }
+);
+
+export type UpdateUserDto = Static<typeof UpdateUserSchema>;
+
+export const UserIdParamSchema = Type.Object({
+  id: Type.Integer({ minimum: 1, example: 1 }),
+});
+
+export type UserIdParams = Static<typeof UserIdParamSchema>;
+
+// ─── Registry ─────────────────────────────────────────
+
+registry.register('User', UserSchema);
+registry.register('CreateUserDto', CreateUserSchema);
+registry.register('UpdateUserDto', UpdateUserSchema);
+
+// ─── Paths ─────────────────────────────────────────────
+
+registry.registerPath({
+  method: 'get',
+  path: '/api/users',
+  tags: ['Users'],
+  summary: 'Get all users',
+  responses: {
+    200: {
+      description: 'List of users',
+      content: {
+        'application/json': {
+          schema: Type.Object({
+            users: Type.Array(UserSchema),
+          }),
+        },
+      },
+    },
+    500: { description: 'Server error' },
+  },
+});
+
+registry.registerPath({
+  method: 'post',
+  path: '/api/users',
+  tags: ['Users'],
+  summary: 'Create a new user',
+  request: {
+    body: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: CreateUserSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    201: {
+      description: 'User created successfully',
+      content: {
+        'application/json': {
+          schema: UserSchema,
+        },
+      },
+    },
+    400: { description: 'Validation error' },
+  },
+});
+
+registry.registerPath({
+  method: 'get',
+  path: '/api/users/{id}',
+  tags: ['Users'],
+  summary: 'Get user by ID',
+  request: {
+    params: UserIdParamSchema,
+  },
+  responses: {
+    200: {
+      description: 'User details',
+      content: {
+        'application/json': {
+          schema: UserSchema,
+        },
+      },
+    },
+    404: { description: 'User not found' },
+  },
+});
+
+registry.registerPath({
+  method: 'put',
+  path: '/api/users/{id}',
+  tags: ['Users'],
+  summary: 'Update user',
+  request: {
+    params: UserIdParamSchema,
+    body: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: UpdateUserSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: { description: 'User updated successfully' },
+    404: { description: 'User not found' },
+  },
+});
+
+registry.registerPath({
+  method: 'delete',
+  path: '/api/users/{id}',
+  tags: ['Users'],
+  summary: 'Delete user',
+  request: {
+    params: UserIdParamSchema,
+  },
+  responses: {
+    204: { description: 'User deleted successfully' },
+    404: { description: 'User not found' },
+  },
+});
+
+// ─── Router ─────────────────────────────────────────────
 
 const router = Router();
 
-// Zod schema (migrate from your Pydantic models)
-const UserSchema = z.object({
-  id: z.number().optional(),
-  email: z.string().email(),
-  name: z.string().min(1),
-  age: z.number().min(0).max(150).optional()
-});
+router.get('/', UserController.getAllUsers);
 
-// GET /api/users
-router.get('/', async (req: Request, res: Response) => {
-  try {
-    // Migrate your FastAPI logic here
-    const users = [
-      { id: 1, email: 'user@example.com', name: 'John Doe' }
-    ];
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch users' });
-  }
-});
+router.post(
+  '/',
+  validate(CreateUserSchema, 'body'),
+  UserController.createUser
+);
 
-// POST /api/users
-router.post('/', async (req: Request, res: Response) => {
-  try {
-    const validatedData = UserSchema.parse(req.body);
-    // Save to database (migrate from SQLAlchemy)
-    res.status(201).json(validatedData);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({ errors: error.message});
-    } else {
-      res.status(500).json({ error: 'Failed to create user' });
-    }
-  }
-});
+router.get(
+  '/:id',
+  validate(UserIdParamSchema, 'params'),
+  UserController.getUserById
+);
 
-// GET /api/users/:id
-router.get('/:id', async (req: Request, res: Response) => {
-  try {
-    const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
-    // Fetch user from database
-    res.json({ id, email: 'user@example.com', name: 'John Doe' });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch user' });
-  }
-});
+router.put(
+  '/:id',
+  validate(UserIdParamSchema, 'params'),
+  validate(UpdateUserSchema, 'body'),
+  UserController.updateUser
+);
 
-export { router as userRoutes };
+router.delete(
+  '/:id',
+  validate(UserIdParamSchema, 'params'),
+  UserController.deleteUser
+);
+
+export default router;
